@@ -182,6 +182,8 @@ public class RentalContract {
         isCompleted = completed;
     }
 
+
+
     @Override
     public String toString() {
         return "Rental Contract Details:\n" +

@@ -111,6 +111,14 @@ public class CarDAO {
     }
 
     public void deleteCarFromInventoryID(int id) {
+
+        for (Car car : rentedCars){
+            if(car.id == id){
+                System.out.println("Car cannot be deleted while it is rented");
+                return;
+            }
+        }
+
         String querySelect = "SELECT id FROM car WHERE id = ?";
         String queryDelete = "DELETE FROM car WHERE id = ?";
 
@@ -165,6 +173,17 @@ public class CarDAO {
 
 
     public void deleteCarFromInventoryREG(String registration_plate) {
+
+        for(Car car : rentedCars){
+            if(car.regplate.equals(registration_plate)){
+                System.out.println("Car cannot be deleted while it is rented");
+                return;
+            }
+
+
+        }
+
+
         String querySelect = "SELECT registration_plate FROM car WHERE registration_plate = ?";
         String queryDelete = "DELETE FROM car WHERE registration_plate = ?";
 
