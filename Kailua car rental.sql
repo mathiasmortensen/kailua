@@ -1,3 +1,5 @@
+create schema kailua;
+
 CREATE TABLE renter (
   id int NOT NULL,
   name varchar(100) NOT NULL,
