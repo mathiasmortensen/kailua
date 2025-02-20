@@ -12,6 +12,38 @@ public class RentalDAO {
     public RentalDAO() {
     }
 
+    public void defaultData(){
+        String insertQueryRenter = "INSERT INTO kailua.renter (id, name, address, zip, city, mobile_phone, phone, email, driver_license_number, driver_since) VALUES (1, 'Valdemar', 'valdevej 19', '2222', 'København', '22113344', '', 'valde@valde.dk', 'valde222', '2024-02-19');\n" +
+                                   "INSERT INTO kailua.renter (id, name, address, zip, city, mobile_phone, phone, email, driver_license_number, driver_since) VALUES (2, 'Mathias', 'Ådalsvej 7', '2635', 'Ishoej', '30569972', '', 'mamo0010@stud.kea.dk', 'daskop', '2022-04-20');\n" +
+                                   "INSERT INTO kailua.renter (id, name, address, zip, city, mobile_phone, phone, email, driver_license_number, driver_since) VALUES (3, 'Sebastian', 'Østergaarden 66', '2635', 'Ishøj', '93960307', '', 'seb@gmail.com', 'BBL243556', '2022-04-20');\n";
+        String insertQueryCar = "\n" +
+                                "INSERT INTO kailua.car (id, brand, model, fuel_type, registration_plate, registration_year_month, odometer, engine_cc, is_manual, has_aircon, has_cruise_control, has_leather_seats, seats, horsepower, car_type, is_available) VALUES (1, 'Mazda', 'MX5', 'GASOLINE', 'JK12345', '2025-02', 0, 200, 1, 0, 0, 0, 2, 300, 'SPORT', 1);\n" +
+                                "INSERT INTO kailua.car (id, brand, model, fuel_type, registration_plate, registration_year_month, odometer, engine_cc, is_manual, has_aircon, has_cruise_control, has_leather_seats, seats, horsepower, car_type, is_available) VALUES (2, 'Toyota', 'Astra', 'HYBRID', 'GG12345', '2025-02', 0, 3000, 1, 1, 0, 0, 7, 1000, 'FAMILY', 1);\n" +
+                                "INSERT INTO kailua.car (id, brand, model, fuel_type, registration_plate, registration_year_month, odometer, engine_cc, is_manual, has_aircon, has_cruise_control, has_leather_seats, seats, horsepower, car_type, is_available) VALUES (3, 'Bentley', 'Bentayaga', 'HYBRID', 'GG44667', '2025-02', 0, 6000, 0, 1, 1, 1, 7, 1000, 'LUXURY', 1);\n";
+
+        String insertQueryRentalContract = "INSERT INTO kailua.rentalcontract (id, renter_id, car_id, from_date_time, to_date_time, max_km, start_odometer, registration_plate, is_contract_completed) VALUES (1, 1, 1, '2024-02-21 00:00:00', '2025-02-21 00:00:00', 1000, 0, 'JK12345', null);\n" +
+                                           "INSERT INTO kailua.rentalcontract (id, renter_id, car_id, from_date_time, to_date_time, max_km, start_odometer, registration_plate, is_contract_completed) VALUES (2, 2, 2, '2024-02-21 00:00:00', '2025-03-21 00:00:00', 1000, 0, 'GG12345', null);\n" +
+                                           "INSERT INTO kailua.rentalcontract (id, renter_id, car_id, from_date_time, to_date_time, max_km, start_odometer, registration_plate, is_contract_completed) VALUES (3, 3, 3, '2024-02-24 00:00:00', '2026-03-21 00:00:00', 2000, 0, 'GG44667', null);\n";
+
+
+
+        try(Connection con = SQLDAO.SQLConnection()){
+            PreparedStatement ps = con.prepareStatement(insertQueryRenter);
+            PreparedStatement ps2 = con.prepareStatement(insertQueryCar);
+            PreparedStatement ps3 = con.prepareStatement(insertQueryRentalContract);
+
+            ps.execute();
+            ps2.execute();
+            ps3.execute();
+            
+
+
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+
+    }
+
 
     public void insertRentalContractToSQL(RentalContract contract){
         String query = "INSERT INTO rentalcontract (renter_id, car_id, from_date_time, to_date_time, max_km, " +
