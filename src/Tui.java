@@ -16,7 +16,7 @@ public class Tui {
 
     public void Start() {
         Scanner sc = new Scanner(System.in);
-        rd.defaultData();
+        rd.defaultDataRenter();
         cd.GenerateCarObjectFromSQL();
         rd.generateRenterObjectFromSQL();
         rd.generateRentalContractObjectFromSQL();
