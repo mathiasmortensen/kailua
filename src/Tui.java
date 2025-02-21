@@ -115,19 +115,16 @@ public class Tui {
             }
             for (Car c : cd.FAMILYCARS) {
                 if (c.getId() == car.getId()) {
-                    System.out.println("Car found in family cars");
                     c.isAvailable = true;
                 }
             }
             for (Car c : cd.LUXURYCARS) {
                 if (c.getId() == car.getId()) {
-                    System.out.println("Car found in luxury cars");
                     c.isAvailable = true;
                 }
             }
             for (Car c : cd.SPORTCARS) {
                 if (c.getId() == car.getId()) {
-                    System.out.println("Car found in sport cars");
                     c.isAvailable = true;
                 }
             }
