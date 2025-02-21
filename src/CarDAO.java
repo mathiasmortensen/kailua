@@ -15,6 +15,33 @@ public class CarDAO {
     public CarDAO() {
     }
 
+    public boolean carIsRented(String reg_plate) {
+        int found = 0;
+        try (Connection con = SQLDAO.SQLConnection()) {
+            PreparedStatement ps = con.prepareStatement("SELECT COUNT(*) FROM rentalcontract WHERE plate = ? AND is_contract_completed = 0");
+            ps.setString(1, reg_plate);
+            ResultSet rs = ps.executeQuery();
+            found = rs.getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return found > 0;
+    }
+
+    public boolean carIsRented(int id) {
+        int found = 0;
+        try (Connection con = SQLDAO.SQLConnection()) {
+            // Hent om bilen er udlejet ved at tælle antal rækker i rentalcontract hvor id = id og is_contract_completed = 0
+            PreparedStatement ps = con.prepareStatement("SELECT COUNT(*) FROM rentalcontract WHERE id = ? AND is_contract_completed = 0");
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            found = rs.getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        // Returner om found er over 0
+        return found > 0;
+    }
 
     public void updateIsAvailable(Car car) {
         car.isAvailable = !car.isAvailable;
@@ -28,6 +55,7 @@ public class CarDAO {
             e.printStackTrace();
         }
     }
+
 
     public int getNextAvailableID() {
 
@@ -111,13 +139,14 @@ public class CarDAO {
     }
 
     public void deleteCarFromInventoryID(int id) {
-
-        for (Car car : rentedCars){
-            if(car.id == id){
+        System.out.println(rentedCars.size());
+        for (Car car : rentedCars) {
+            if (car.id == id) {
                 System.out.println("Car cannot be deleted while it is rented");
                 return;
             }
         }
+
 
         String querySelect = "SELECT id FROM car WHERE id = ?";
         String queryDelete = "DELETE FROM car WHERE id = ?";
@@ -173,24 +202,19 @@ public class CarDAO {
 
 
     public void deleteCarFromInventoryREG(String registration_plate) {
-
-        for(Car car : rentedCars){
-            if(car.regplate.equals(registration_plate)){
-                System.out.println("Car cannot be deleted while it is rented");
-                return;
-            }
-
-
+        if (carIsRented(registration_plate)) {
+            System.out.println("Car cannot be deleted while it is rented");
+            return;
         }
 
-
+        String queryDeleteContract = "DELETE FROM car WHERE registration_plate = ?";
         String querySelect = "SELECT registration_plate FROM car WHERE registration_plate = ?";
         String queryDelete = "DELETE FROM car WHERE registration_plate = ?";
 
-        try (Connection con = SQLDAO.SQLConnection();
-             PreparedStatement selectStmt = con.prepareStatement(querySelect);
-             PreparedStatement deleteStmt = con.prepareStatement(queryDelete)) {
-
+        try (Connection con = SQLDAO.SQLConnection()) {
+            PreparedStatement selectStmt = con.prepareStatement(querySelect);
+            PreparedStatement deleteStmt = con.prepareStatement(queryDelete);
+            PreparedStatement deleteContractStmt = con.prepareStatement(queryDeleteContract);
             selectStmt.setString(1, registration_plate);
 
             ResultSet rs = selectStmt.executeQuery();
@@ -198,7 +222,9 @@ public class CarDAO {
             if (rs.next()) {
 
                 deleteStmt.setString(1, registration_plate);
+                deleteContractStmt.setString(1, registration_plate);
 
+                deleteContractStmt.executeUpdate();
                 int rowsAffected = deleteStmt.executeUpdate();
 
                 if (rowsAffected > 0) {

@@ -188,6 +188,7 @@ public class RentalContract {
     public String toString() {
         return "Rental Contract Details:\n" +
                "----------------------------\n" +
+               "Rental ID: " + id + "\n" +
                "Zip Code: " + renter.getZip() + "\n" +
                "Name: " + renter.getName() + "\n" +
                "Address: " + renter.getAddress() + "\n" +

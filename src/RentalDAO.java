@@ -41,23 +41,24 @@ public class RentalDAO {
 
 
     public void insertRentalContractToSQL(RentalContract contract){
-        String query = "INSERT INTO rentalcontract (renter_id, car_id, from_date_time, to_date_time, max_km, " +
+        String query = "INSERT INTO rentalcontract (id, renter_id, car_id, from_date_time, to_date_time, max_km, " +
                        "start_odometer, registration_plate, is_contract_completed) " +
-                       "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                       "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection con = SQLDAO.SQLConnection()) {
             PreparedStatement pstmt = con.prepareStatement(query);
-            pstmt.setInt(1, contract.getRenter().getRenterID());
-            pstmt.setInt(2, contract.getCar().id);
+            pstmt.setInt(1, getNextAvailableRentalContractID());
+            pstmt.setInt(2, contract.getRenter().getRenterID());
+            pstmt.setInt(3, contract.getCar().getId());
 
             // Konverterer fra java.util.Date til java.sql.Date
-            pstmt.setDate(3, new java.sql.Date(contract.getRentedFrom().getTime()));
-            pstmt.setDate(4, new java.sql.Date(contract.getRentedTo().getTime()));
+            pstmt.setDate(4, new java.sql.Date(contract.getRentedFrom().getTime()));
+            pstmt.setDate(5, new java.sql.Date(contract.getRentedTo().getTime()));
 
-            pstmt.setInt(5, contract.getMaxkm());
-            pstmt.setInt(6, contract.getKmrentedStart());
-            pstmt.setString(7, contract.getRegistrationNumber());
-            pstmt.setBoolean(8, false); // Standard er ikke færdiggjort
+            pstmt.setInt(6, contract.getMaxkm());
+            pstmt.setInt(7, contract.getKmrentedStart());
+            pstmt.setString(8, contract.getRegistrationNumber());
+            pstmt.setBoolean(9, false); // Standard er ikke færdiggjort
 
             // Kør SQL INSERT (executeUpdate i stedet for executeQuery)
             int rowsAffected = pstmt.executeUpdate();
@@ -187,6 +188,44 @@ public class RentalDAO {
 
 
     }
+
+    public void deleteRentalContract(RentalContract rc){
+        String queryDelete = "DELETE FROM rentalcontract WHERE id = ?";
+        String query = "update car SET is_available = 1 WHERE id = ?";
+        try(Connection con = SQLDAO.SQLConnection()){
+            PreparedStatement pstmt = con.prepareStatement(queryDelete);
+            PreparedStatement pstmtDelete = con.prepareStatement(query);
+            pstmt.setInt(1, rc.getId());
+            pstmtDelete.setInt(1, rc.getCar().getId());
+            pstmt.executeUpdate();
+            pstmtDelete.executeUpdate();
+            System.out.println("Rental contract deleted!");
+
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+
+
+    }
+
+    public int getNextAvailableRentalContractID() {
+
+        String query = "select min(id + 1) as next_id from rentalcontract t1 where not exists(select 1 from rentalcontract t2 where t2.id = t1.id + 1)";
+
+        int nextID = 1;
+        try (Connection con = SQLDAO.SQLConnection();
+             PreparedStatement pstmt = con.prepareStatement(query);
+             ResultSet rs = pstmt.executeQuery()) {
+            if (rs.next() && rs.getInt("next_id") > 0) {
+                nextID = rs.getInt("next_id");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return nextID;
+    }
+
+
 
     public void deleteRenterFromSystemEmail(String email) {
 

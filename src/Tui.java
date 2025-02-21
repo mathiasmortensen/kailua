@@ -39,6 +39,7 @@ public class Tui {
             System.out.println("7. Create Rental Contract");
             System.out.println("8. Mark rental contract as completed");
             System.out.println("9. Display Rental Contracts");
+            System.out.println("10. Delete Rental Contract");
 
 
             int valg = Integer.parseInt(sc.nextLine());
@@ -76,11 +77,69 @@ public class Tui {
                 case 33:
                     cd.showAllCars(true);
                     break;
+                case 10:
+                    deleteRentalContract();
+                    break;
             }
 
         }
 
     }
+    public void deleteRentalContract() {
+        Scanner sc = new Scanner(System.in);
+
+        for (RentalContract rc : rd.rentalContractList) {
+            System.out.println(rc);
+        }
+
+        System.out.println("Enter the rental contract ID to delete rental contract");
+        int id = Integer.parseInt(sc.nextLine());
+
+        RentalContract contractToRemove = null;
+
+        for (RentalContract rc : rd.rentalContractList) {
+            if (rc.getId() == id) {
+                contractToRemove = rc;
+                break;
+            }
+        }
+
+        if (contractToRemove != null) {
+            rd.deleteRentalContract(contractToRemove);
+            Car car = contractToRemove.getCar();
+
+            for (Car c : cd.allCars) {
+                if (c.getId() == car.getId()) {
+                    c.isAvailable = true;
+                }
+            }
+            for (Car c : cd.FAMILYCARS) {
+                if (c.getId() == car.getId()) {
+                    System.out.println("Car found in family cars");
+                    c.isAvailable = true;
+                }
+            }
+            for (Car c : cd.LUXURYCARS) {
+                if (c.getId() == car.getId()) {
+                    System.out.println("Car found in luxury cars");
+                    c.isAvailable = true;
+                }
+            }
+            for (Car c : cd.SPORTCARS) {
+                if (c.getId() == car.getId()) {
+                    System.out.println("Car found in sport cars");
+                    c.isAvailable = true;
+                }
+            }
+
+            rd.rentalContractList.remove(contractToRemove);
+            System.out.println("Rental contract deleted successfully.");
+
+        } else {
+            System.out.println("Error: Rental contract ID not found.");
+        }
+    }
+
 
     public void markRentalAsCompleted() {
         Scanner sc = new Scanner(System.in);
@@ -214,7 +273,7 @@ public class Tui {
         System.out.println("Enter the max number of kilometers the car will be driven: ");
         int maxkm = Integer.parseInt(sc.nextLine());
 
-        System.out.println("Odometer for selected car: " +selectedCar.odometer);
+        System.out.println("Odometer for selected car: " + selectedCar.odometer);
         System.out.println("Enter the current number of kilometers on the odometer: ");
         int odometerStart = Integer.parseInt(sc.nextLine());
 
@@ -222,11 +281,11 @@ public class Tui {
         System.out.println("Enter the registration plate on the car that needs to be rented: ");
         String registrationPlate = sc.nextLine();
 
-        RentalContract rc = new RentalContract(0,selectedRenter, selectedCar, startDate, endDate, maxkm, odometerStart, registrationPlate, false);
+        RentalContract rc = new RentalContract(rd.rentalContractList.size() + 1, selectedRenter, selectedCar, startDate, endDate, maxkm, odometerStart, registrationPlate, false);
         cd.updateIsAvailable(selectedCar);
 
-        rd.rentalContractList.add(rc);
         rd.insertRentalContractToSQL(rc);
+        rd.rentalContractList.add(rc);
         System.out.println("Rental contract successfully created!");
     }
 
@@ -437,13 +496,12 @@ public class Tui {
                 System.out.println("Atleast 200 HP\nHow much horsepower?");
                 int Shp = Integer.parseInt(sc.nextLine());
                 int idd = cd.addToDatabase(Sbrand, Smodel, Sfueltype, Sregplate, SregYearMonth, Sodometer, Scc, SisManual, ShasAirCon, ShasCruiseControl, ShasLeatherSeats, Sseats, Shp, sCar_type);
-                SportsCar S = new SportsCar(idd,Sbrand, Smodel, Sfueltype, Sregplate, SregYearMonth, Sodometer, Scc, SisManual, ShasAirCon, ShasCruiseControl, ShasLeatherSeats, Sseats, Shp, true);
+                SportsCar S = new SportsCar(idd, Sbrand, Smodel, Sfueltype, Sregplate, SregYearMonth, Sodometer, Scc, SisManual, ShasAirCon, ShasCruiseControl, ShasLeatherSeats, Sseats, Shp, true);
                 cd.SPORTCARS.add(S);
                 break;
         }
 
     }
-
 
 
 }
